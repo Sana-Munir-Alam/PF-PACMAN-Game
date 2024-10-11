@@ -6,12 +6,12 @@
 // Function to get a single character input without waiting for Enter
 char getch() {
     char ch;
-    struct termios oldt, newt;
+    struct termios oldt, newt; //These are structures that hold the terminal settings. We need two variables: oldt to store the original settings so that we can restore them later, and newt to modify the settings temporarily.
 
     // Get the current terminal settings
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt; 
-    newt.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
+    tcgetattr(STDIN_FILENO, &oldt); //This function call retrieves the current settings of the terminal (associated with STDIN_FILENO, which represents standard input) and stores them in the oldt structure. This allows us to save the current terminal configuration for later restoration.
+    newt = oldt; //This copies the current terminal settings (oldt) to the newt structure so that we can modify them without affecting the original settings.
+    newt.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo. ICANON: Canonical mode is responsible for line-buffered input, which means input is not sent to the program until the user presses Enter. By disabling this (~ICANON), the program can capture each character as it's typed, without waiting for Enter. ECHO: This flag causes input to be echoed back to the terminal (i.e., when you type, it shows up on the screen). By disabling this (~ECHO), characters typed by the user won’t be displayed on the terminal.
     tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Apply new settings
 
     ch = getchar(); // Read a single character
