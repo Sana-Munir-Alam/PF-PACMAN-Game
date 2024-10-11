@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 void map(){
-	#define Height 26
+    #define Height 26
     #define Width 60
     #define Wall '#'
     #define Empty '.'
