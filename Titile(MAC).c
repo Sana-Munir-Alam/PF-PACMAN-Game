@@ -12,12 +12,12 @@ char getch() {
     tcgetattr(STDIN_FILENO, &oldt); //This function call retrieves the current settings of the terminal (associated with STDIN_FILENO, which represents standard input) and stores them in the oldt structure. This allows us to save the current terminal configuration for later restoration.
     newt = oldt; //This copies the current terminal settings (oldt) to the newt structure so that we can modify them without affecting the original settings.
     newt.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo. ICANON: Canonical mode is responsible for line-buffered input, which means input is not sent to the program until the user presses Enter. By disabling this (~ICANON), the program can capture each character as it's typed, without waiting for Enter. ECHO: This flag causes input to be echoed back to the terminal (i.e., when you type, it shows up on the screen). By disabling this (~ECHO), characters typed by the user won’t be displayed on the terminal.
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Apply new settings
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt); // This function applies the modified terminal settings (newt) immediately (TCSANOW). Input will be captured character by character
 
     ch = getchar(); // Read a single character
 
     // Restore old terminal settings
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt); //After capturing the character, this line restores the terminal to its original settings (oldt).
     
     return ch; // Return the character read
 }
