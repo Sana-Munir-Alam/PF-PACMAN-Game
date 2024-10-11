@@ -2,21 +2,21 @@
 #include <conio.h> // Include conio.h for getch() in Windows
 
 void map(){
-	#define Height 26
-    #define Width 60
-    #define Wall '#'
-    #define Empty '.'
-	char map[Height][Width];
-	for (int i=0; i < Height; i++) {
+    #define Height 26	//This defines the height of the maze (rows)
+    #define Width 60	//This defines the width of the maze (columns)
+    #define Wall '#'	//This defines the wall material
+    #define Empty '.'	//This defines the empty space (where pacman and the ghostgang will roam about)
+	char map[Height][Width];	//2D Array for defining the height and width of the maze
+	for (int i=0; i < Height; i++) {	//use of nested loop inorder for the walls to be made horizontally and vertically
     	for (int j=0;j < Width; j++) {
-        	if(i == 0 || j == Width -1 || j == 0 || i == Height -1) {
+        	if(i == 0 || j == Width -1 || j == 0 || i == Height -1) {	//This creates the main boundary of the wall
                 map[i][j] = Wall;
                 printf("%c", map[i][j]);
             }else{
                 map[i][j] = Empty;
                 printf("%c", map[i][j]);
             }
-        }printf("\n");
+        }printf("\n"); //To move to next line
   	}
 }
 
