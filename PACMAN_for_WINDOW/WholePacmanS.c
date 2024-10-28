@@ -1,142 +1,139 @@
+//This code has continious movement/time/character movement/Coin collectio/coin watcher
+
 #include <stdio.h>
-#include <conio.h>
-#include <stdlib.h>
+#include <conio.h>  // For kbhit() and getch() on Windows
+#include <windows.h> // For Sleep() on Windows
+#include <stdbool.h>
+#include <time.h>
 
-#define Height 26   //This defines the height of the maze (rows)
-#define Width 60    //This defines the width of the maze (columns)
-#define Wall '#'    //This defines the wall material
-#define Empty ' '   //This defines the empty space (where pacman and the ghostgang will roam about)
-#define Coins '.'
+#define Width 60
+#define Height 26
+#define Wall '#'
 #define Pacman 'C'
-#define GhostGang 'X'
+#define Coins '.'
+#define Empty ' '
 
-//global variable
+//Global Variable
 int Score = 0;
-int Coin = 0;
-int result = 0;
-int Px = 17, Py = 29;
-char map[Height][Width]; //2D Array for defining the height and width of the maze
 
-//Function that creates the main map
-void CreateMap(){
-    system("cls"); //Clears Screen
-    for (int i=0; i < Height; i++) {       //use of nested loop inorder for the walls to be made horizontally and vertically
-        for (int j=0;j < Width; j++) {
-            if(i == 0 || j == Width -1 || j == 0 || i == Height -1) {   //This creates the main boundary of the wall
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==1 || i==2 || i==3 || i==4) && (j == 29 || j == 30)){ //row 1 to row 4 walls
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==2 || i==3 || i==4)&& ((j>=2 && j <= 13)||(j>=16 && j<=27)||(j>=32 && j<=43)||(j>=46 && j<=57))){
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==6)&& ((j>=2 && j<=13) || (j>=16 && j<=18) || (j>=20 && j<=39)|| (j>=41 && j<=43)|| (j>=46 && j<=57))){ //row 6
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==7)&& ((j>=16 && j<=18) || (j>=29 && j<=30) || (j>=41 && j<=43))){ //row 7
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==8)&& ((j>=1 && j<=13) || (j>=16 && j<=26) || (j>=29 && j<=30)|| (j>=33 && j<=43)|| (j>=46 && j<=58))){ //row 8
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==9)&& ((j>=1 && j<=13) || (j>=16 && j<=18) || (j>=41 && j<=43)|| (j>=46 && j<=58))){ //row 9
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==10)&& ((j>=1 && j<=13) || (j>=16 && j<=18) || (j>=20 && j<=28)|| (j>=31 && j<=39)|| (j>=41 && j<=43)|| (j>=46 && j<=58))){ //row 10
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i == 11) &&((j>=20 && j<=22)||(j>=37 && j<=39))){
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i == 12) &&((j>=1 && j<=13)||(j>=16 && j<=18)||(j>=20 && j<=28)||(j>=31 && j<=33)||(j>=34 && j<=39)||(j>=41 && j<=43)||(j>=46 && j<=58))){ //row 12
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i == 13) &&((j>=1 && j<=13)||(j>=16 && j<=18)||(j>=41 && j<=43)||(j>=41 && j<=43)||(j>=46 && j<=58))){ //row 13
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i == 14)&&((j>=1 && j<=13)||(j>=16 && j<=18)||(j>=20 && j<=22)||(j>=23  && j<=39)||(j>=41 && j<=43)||(j>=46 && j<=58))){ //row 14
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i == 15)&&((j==29 || j ==30))){ //row 15
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);   
-            }else if ((i==16)&& ((j>=2 && j<= 13) || (j>=16 && j<=26) || (j>=29 && j<= 30) || (j>=33 && j<= 43) || (j>=46 && j<=57))) { //row 16
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }else if ((i==17)&& ((j>=8 && j<= 13) || (j>=46 && j<=51))) { //row 17
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }else if ((i==18)&& ((j>=1 && j<= 6) || (j>=8 && j<=13)|| (j>=16 && j<=18)|| (j>=20 && j<=39) || (j>=41 && j<=43) || (j>=46 && j<=51) || (j>=53 && j<=58))) { //row 18
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }else if ((i==19)&& ((j>=16 && j<= 18) || (j>=29 && j<=30)|| (j>=41 && j<=43))) { //row 19
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }else if ((i==20)&& ((j>=2 && j<= 26) || (j>=29 && j<=30)|| (j>=33 && j<=57))) { //row 20
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }else if ((i==21)&& ((j>=2 && j<= 10) || (j>=28 && j<=31)|| (j>=49 && j<=57))) { //row 21
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }
-            else if((i==22)&&((j>=2&&j<=7)||(j>=11&&j<=26)||(j>=33&&j<=54))){ //row 22
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }else if((i == 23)&&((j>=2&&j<=9)||(j>=11&&j<=15)||(j>=17&&j<=26)||(j>=33&&j<=57))){ //row 23
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);                
-            }else if((i == 24)&&(j>=28&&j<=31)){ //row 24
-                map[i][j] = Wall;
-                printf("%c", map[i][j]); 
-            }else if (i == Px && j == Py) {
-                map[i][j] = Pacman;
-                printf("%c", map[i][j]);
-            }else if ((map[i][j] != Pacman) && (map[i][j] != Wall)) {
-                map[i][j] = Coins;
-                printf("%c", map[i][j]);
-                Coin = Coin + 1;
-            }
-        }printf("\n"); //To move to next line
-    }
-    printf("Score: %d\n", Score); 
+
+// Move cursor to a specific position in the terminal (Windows version)
+void move_cursor(int x, int y) {
+    COORD coord;
+    coord.X = x;
+    coord.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-//Draw Map it redraws map after each movement
-void DrawMap() {
-    system("cls");  // Clear screen before each redraw
-    for (int i = 0; i < Height; i++) {
-        for (int j = 0; j < Width; j++) {
-            printf("%c", map[i][j]);  // Print current map state
+// Hide the cursor (Windows version)
+void hide_cursor() {
+    CONSOLE_CURSOR_INFO cursorInfo;
+    GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+    cursorInfo.bVisible = FALSE; // Hide the cursor
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+}
+
+// Show the cursor (Windows version)
+void show_cursor() {
+    CONSOLE_CURSOR_INFO cursorInfo;
+    GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+    cursorInfo.bVisible = TRUE; // Show the cursor
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+}
+
+// Time Function
+double GetElapsedTime(time_t StartTime) {
+    return difftime(time(NULL), StartTime);
+}
+
+//Check if next position is wall
+bool IsWall(int x, int y) {
+    if(y == 0 || x == Width -1 || x == 0 || y == Height -1) {   //Thys creates the mayn boundary of the wall
+        return true;
+    }else if((y==1 || y==2 || y==3 || y==4) && (x == 29 || x == 30)){ //row 1 to row 4 walls                
+        return true;
+    }else if((y==2 || y==3 || y==4)&& ((x>=2 && x <= 13)||(x>=16 && x<=27)||(x>=32 && x<=43)||(x>=46 && x<=57))){                 
+        return true;
+    }else if((y==6)&& ((x>=2 && x<=13) || (x>=16 && x<=18) || (x>=20 && x<=39)|| (x>=41 && x<=43)|| (x>=46 && x<=57))){ //row 6                 
+        return true;
+    }else if((y==7)&& ((x>=16 && x<=18) || (x>=29 && x<=30) || (x>=41 && x<=43))){ //row 7                 
+        return true;
+    }else if((y==8)&& ((x>=1 && x<=13) || (x>=16 && x<=26) || (x>=29 && x<=30)|| (x>=33 && x<=43)|| (x>=46 && x<=58))){ //row 8                 
+        return true;
+    }else if((y==9)&& ((x>=1 && x<=13) || (x>=16 && x<=18) || (x>=41 && x<=43)|| (x>=46 && x<=58))){ //row 9
+        return true;
+    }else if((y==10)&& ((x>=1 && x<=13) || (x>=16 && x<=18) || (x>=20 && x<=28)|| (x>=31 && x<=39)|| (x>=41 && x<=43)|| (x>=46 && x<=58))){ //row 10 
+        return true;
+    }else if((y == 11) &&((x>=20 && x<=22)||(x>=37 && x<=39))){                
+        return true;
+    }else if((y == 12) &&((x>=1 && x<=13)||(x>=16 && x<=18)||(x>=20 && x<=28)||(x>=31 && x<=33)||(x>=34 && x<=39)||(x>=41 && x<=43)||(x>=46 && x<=58))){ //row 12                
+        return true;
+    }else if((y == 13) &&((x>=1 && x<=13)||(x>=16 && x<=18)||(x>=41 && x<=43)||(x>=41 && x<=43)||(x>=46 && x<=58))){ //row 13             
+        return true;
+    }else if((y == 14)&&((x>=1 && x<=13)||(x>=16 && x<=18)||(x>=20 && x<=22)||(x>=23  && x<=39)||(x>=41 && x<=43)||(x>=46 && x<=58))){ //row 14               
+        return true;
+    }else if((y == 15)&&((x==29 || x ==30))){ //row 15                 
+        return true;   
+    }else if ((y==16)&& ((x>=2 && x<= 13) || (x>=16 && x<=26) || (x>=29 && x<= 30) || (x>=33 && x<= 43) || (x>=46 && x<=57))) { //row 16                 
+        return true;  
+    }else if ((y==17)&& ((x>=8 && x<= 13) || (x>=46 && x<=51))) { //row 17                 
+        return true;  
+    }else if ((y==18)&& ((x>=1 && x<= 6) || (x>=8 && x<=13)|| (x>=16 && x<=18)|| (x>=20 && x<=39) || (x>=41 && x<=43) || (x>=46 && x<=51) || (x>=53 && x<=58))) { //row 18                 
+        return true;  
+    }else if ((y==19)&& ((x>=16 && x<= 18) || (x>=29 && x<=30)|| (x>=41 && x<=43))) { //row 19                
+        return true;  
+    }else if ((y==20)&& ((x>=2 && x<= 26) || (x>=29 && x<=30)|| (x>=33 && x<=57))) { //row 20                 
+        return true;  
+    }else if ((y==21)&& ((x>=2 && x<= 10) || (x>=28 && x<=31)|| (x>=49 && x<=57))) { //row 21                 
+        return true;  
+    }else if((y==22)&&((x>=2&&x<=7)||(x>=11&&x<=26)||(x>=33&&x<=54))){ //row 22                
+        return true;  
+    }else if((y == 23)&&((x>=2&&x<=9)||(x>=11&&x<=15)||(x>=17&&x<=26)||(x>=33&&x<=57))){ //row 23                
+        return true;                
+    }else if((y == 24)&&(x>=28&&x<=31)){ //row 24               
+        return true; 
+    }
+    return false;
+}
+
+// Render the box and character
+void Render(int x, int y, int Lives, int Score, double ElapsedTime, char map[Height][Width]) {
+    move_cursor(0, 0);  // Move cursor to the top left corner
+    // Draw the Maze and Characters
+    for (int i = 0; i < Height; ++i) {
+        for (int j = 0; j < Width; ++j) {
+            if (IsWall(j, i)) {
+                printf("%c", Wall);
+            } else if (i == y && j == x) {
+                printf("%c", Pacman);  // The character
+            } else if (map[i][j] == '.') {
+                printf("%c", Coins);  // Coin
+            } else {
+                printf("%c", Empty);  // Empty space
+            }
         }
         printf("\n");
     }
-    printf("Score: %d\n", Score);  // Display current score
+    printf("Lives: %d\n", Lives); // Display Remaining Lives
+    printf("Score: %d\n", Score); // Display the Score
+    printf("Time: %.0f seconds\n", ElapsedTime); // Display Elapsed Time
+    fflush(stdout);  // Ensure everything is printed immediately
 }
 
-// Function to move the player based on input direction
-void move(int move_x, int move_y) {
-    int newX = Px + move_x;
-    int newY = Py + move_y;
-
-    if (newX >= 0 && newX < Height && newY >= 0 && newY < Width && map[newX][newY] != Wall) {
-        if (map[newX][newY] == Coins) {
-            Score = Score + 1;  // Increment score when collecting a coin
-            Coin = Coin - 1;
-            if (Coin == 0){
-                result = 1;
-                return;
-            }
-        }
-        map[Px][Py] = Empty;  // Clear Pacman’s previous position
-        Px = newX;             // Update Pacman's position
-        Py = newY;
-        map[Px][Py] = Pacman;  // Place Pacman at the new position
-    }
-}
-
+// Main game logic
 int main() {
-    char pf;
+    int x = 29;  // Initial x position of Pacman
+    int y = 17; // Initial y position of Pacman
+    int dx = 0;  // No movement initially
+    int dy = 0;  // No movement initially
+    int Lives = 3;
+
+    bool Stunned = false;
+    bool Running = true;
+
+    time_t StartTime = time(NULL);
+    const double frameDelay = 0.15;  // Target frame time (350 ms per frame)
+    
     printf(" ____   _    ____ __  __    _    _   _\n");
     printf("|  _ \\ / \\  / ___|  \\/  |  / \\  | \\ | |\n");
     printf("| |_) / _ \\| |   | |\\/| | / _ \\ |  \\| |\n");
@@ -153,48 +150,101 @@ int main() {
     printf("To Start Game Press Y\n"); // Display prompt to start the game
 
     // Wait for user input using getch from conio.h (for Windows)
-    pf = _getch(); // _getch() gets a single character without waiting for Enter
-
+    char pf = _getch(); // _getch() gets a single character without waiting for Enter
     if (pf != 'Y' && pf != 'y') {
         printf("Exit Game\n");
         return 1; // Exit if the input is not 'Y' or 'y'
     }
-    
-    // If 'Y' or 'y' is pressed, continue the game
-    printf("Game Starting...\n"); // Indicate the game has started
-    CreateMap();
-    system("cls"); 
 
-    while (1) {
-        DrawMap();
-		
-        if (result == 1) { 
-			// Clear screen 
-			system("cls"); 
-			printf("You Win! \n Your Score: %d\n", Score); 
-			return 1; 
-		} 
-        pf = getch();
-        // Move based on user input
-        switch (pf) { 
-            case 'W':
-                move(-1, 0); // Move up
-                break;
-            case 'S':
-                move(1, 0); // Move down
-                break;
-            case 'A':
-                move(0, -1); // Move left
-                break;
-            case 'D':
-                move(0, 1); // Move right
-                break;
-            case 'Q':
-                printf("Game Over! Your Score: %d\n", Score);
-                return 0;
-            default:
-                break;
+    // Initializing Map with Coins and Pacman
+    char map[Height][Width];
+    for (int i = 0; i < Height; ++i) {
+        for (int j = 0; j < Width; ++j) {
+                if (i == 17 && j == 29){
+                    map[i][j] = Pacman;
+                }else{
+                    map[i][j] = Coins;
+                }   
         }
     }
+
+    // Hide cursor for smoother gameplay
+    hide_cursor();
+
+    while (Running) {
+        // Handle input (non-blocking)
+        if (_kbhit()) {  // Check if a key is pressed
+            char ch = _getch();  // Get the pressed key
+            if (Stunned) {  //True if Pacman collided with GhostGang this will reset Pacman to original position
+                Stunned = false;
+                x = 29; //Original x coordinate
+                y = 17; //Original y coordinate
+            } else {
+                switch (ch) {
+                    case 'w': case 'W': // Move up
+                        dx = 0;
+                        dy = -1;
+                        break;
+                    case 's': case 'S': // Move down
+                        dx = 0;
+                        dy = 1;
+                        break;
+                    case 'a': case 'A': // Move left
+                        dx = -1;
+                        dy = 0;
+                        break;
+                    case 'd': case 'D': // Move right
+                        dx = 1;
+                        dy = 0;
+                        break;
+                    case 'q': case 'Q': // Quit the game
+                        Running = false;
+                        break;
+                }
+            }
+        }
+
+        // This checks if Pacman has not come in contact with Ghost Gang
+        if (!Stunned) {
+            int newX = x + dx;
+            int newY = y + dy;
+
+            if (IsWall(newX, newY)) {
+                continue;
+            } else if (newX == 17 && newY == 10) {
+                Lives = Lives - 1;
+                Stunned = true;
+                printf("Ouch! You hit a demon! Lives left: %d\n", Lives);
+                x = Width / 2;
+                y = Height / 2;
+            } else {
+                x = newX;
+                y = newY;
+
+                // Check for coin collection
+                if (map[y][x] == Coins) {
+                    map[y][x] = Empty;  // Replace coin with empty space
+                    Score = Score + 1;  // Increment score
+                }
+            }
+        }
+
+        double ElapsedTime = GetElapsedTime(StartTime);
+        
+        // Render the game
+        Render(x, y, Lives, Score, ElapsedTime, map);
+
+        //Check if Pacman has any remaining life if no 'Game Over'
+        if (Lives <= 0) {
+            printf("Game Over! You have no lives left.\n");
+            Running = false;
+        }
+
+        // Sleep to control frame rate (350 ms per frame)
+        Sleep((DWORD)(frameDelay * 1000)); // Sleep takes milliseconds
+    }
+
+    // Show cursor before exiting
+    show_cursor();
     return 0;
 }
