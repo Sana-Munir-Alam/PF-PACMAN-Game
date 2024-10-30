@@ -1,221 +1,225 @@
-//This code is only the title page and Map (every addition in our code will be added here)
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <time.h>
 
-#define Height 26   //This defines the height of the maze (rows)
-#define Width 60    //This defines the width of the maze (columns)
-#define Wall '#'    //This defines the wall material
-#define Empty ' '   //This defines the empty space (where pacman and the ghostgang will roam about)
-#define Coins '.'
+
+#define Width 60
+#define Height 26
+#define Wall '#'
 #define Pacman 'C'
 #define GhostGang 'X'
+#define Coins '.'
+#define Empty ' '
 
-//global variable
+//Global Variable
 int Score = 0;
-int Coin = 0;
-int result = 0;
-int Px = 17, Py = 29;
-char map[Height][Width]; //2D Array for defining the height and width of the maze
-time_t startTime; // Variable to store the start time
+int HighScore = 0;
 
-
-// Function to get a single character input without waiting for Enter
-char getch() {
-    char buf = 0;  // Declare a variable to store the character read from input.
-    struct termios old = {0};  // Declare a struct to hold the current terminal settings.
-    
-    // Retrieve the current terminal settings and store them in 'old'
-    if (tcgetattr(0, &old) < 0) perror("tcsetattr()");     //This function call retrieves the current settings of the terminal (associated with STDIN_FILENO, which represents standard input and stores them in the oldt structure. This allows us to save the current terminal configuration for later restoration.
-
-    // Modify the terminal settings stored in 'old' to disable canonical mode and echo.
-    old.c_lflag &= ~ICANON;  // ICANON: Canonical mode is responsible for line-buffered input, which means input is not sent to the program until the user presses Enter. By disabling this (~ICANON), the program can capture each character as it's typed, without waiting for Enter.
-    old.c_lflag &= ~ECHO;  // ECHO: This flag causes input to be echoed back to the terminal (i.e., when you type, it shows up on the screen). By disabling this (~ECHO), characters typed by the user won’t be displayed on the terminal.
-
-    // Set minimum number of characters for non-canonical read to 1 and set timeout to 0.
-    old.c_cc[VMIN] = 1;  // 'VMIN = 1' ensures the program will wait for at least one character to be input before proceeding.
-    old.c_cc[VTIME] = 0;  // 'VTIME = 0' sets no timeout for input. It ensures the program waits indefinitely for input, which is ideal for capturing real-time keystrokes.
-
-    // Apply the new terminal settings (with canonical mode and echo disabled) immediately.
-    if (tcsetattr(0, TCSANOW, &old) < 0) perror("tcsetattr ICANON");  // Apply changes to terminal settings using 'TCSANOW', which makes the changes take effect immediately.
-    // Read one character from standard input (file descriptor 0) and store it in 'buf'.
-    // 'read(0, &buf, 1)' reads 1 byte (character) from STDIN. This is a low-level system call that directly interacts with input streams.
-    if (read(0, &buf, 1) < 0) perror("read()");  // If reading fails, print an error message.
-    // Restore the original terminal settings (enable canonical mode and echo).
-    old.c_lflag |= ICANON;  // Re-enable canonical mode, meaning input will be line-buffered again (user has to press Enter to send input).
-    old.c_lflag |= ECHO;  // Re-enable echo, meaning typed characters will now be displayed on the terminal.
-    // Apply the restored terminal settings after all pending output has been written.
-    if (tcsetattr(0, TCSADRAIN, &old) < 0) perror("tcsetattr ~ICANON");  // Use 'TCSADRAIN' to wait until all output is written before restoring the settings, ensuring smooth terminal behavior.
-    return buf;
+//These 7 functions below are handling the cursor, the terminal setting, and to get an input without the need of pressing enter or displaying it. (Smooth Display)
+// Move cursor to a specific position in the terminal
+void move_cursor(int x, int y) {
+    printf("\033[%d;%dH", y + 1, x + 1);
 }
 
-//Function that creates the main map (this is making the alteration in the global map function)
-void CreateMap(){
-    system("cls"); //Clears Screen
-    for (int i=0; i < Height; i++) {       //use of nested loop inorder for the walls to be made horizontally and vertically
-        for (int j=0;j < Width; j++) {
-            if(i == 0 || j == Width -1 || j == 0 || i == Height -1) {   //This creates the main boundary of the wall
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==1 || i==2 || i==3 || i==4) && (j == 29 || j == 30)){ //row 1 to row 4 walls
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==2 || i==3 || i==4)&& ((j>=2 && j <= 13)||(j>=16 && j<=27)||(j>=32 && j<=43)||(j>=46 && j<=57))){
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==6)&& ((j>=2 && j<=13) || (j>=16 && j<=18) || (j>=20 && j<=39)|| (j>=41 && j<=43)|| (j>=46 && j<=57))){ //row 6
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==7)&& ((j>=16 && j<=18) || (j>=29 && j<=30) || (j>=41 && j<=43))){ //row 7
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==8)&& ((j>=1 && j<=13) || (j>=16 && j<=26) || (j>=29 && j<=30)|| (j>=33 && j<=43)|| (j>=46 && j<=58))){ //row 8
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==9)&& ((j>=1 && j<=13) || (j>=16 && j<=18) || (j>=41 && j<=43)|| (j>=46 && j<=58))){ //row 9
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i==10)&& ((j>=1 && j<=13) || (j>=16 && j<=18) || (j>=20 && j<=28)|| (j>=31 && j<=39)|| (j>=41 && j<=43)|| (j>=46 && j<=58))){ //row 10
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i == 11) &&((j>=20 && j<=22)||(j>=37 && j<=39))){
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i == 12) &&((j>=1 && j<=13)||(j>=16 && j<=18)||(j>=20 && j<=28)||(j>=31 && j<=33)||(j>=34 && j<=39)||(j>=41 && j<=43)||(j>=46 && j<=58))){ //row 12
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i == 13) &&((j>=1 && j<=13)||(j>=16 && j<=18)||(j>=41 && j<=43)||(j>=41 && j<=43)||(j>=46 && j<=58))){ //row 13
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i == 14)&&((j>=1 && j<=13)||(j>=16 && j<=18)||(j>=20 && j<=22)||(j>=23  && j<=39)||(j>=41 && j<=43)||(j>=46 && j<=58))){ //row 14
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);
-            }else if((i == 15)&&((j==29 || j ==30))){ //row 15
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);   
-            }else if ((i==16)&& ((j>=2 && j<= 13) || (j>=16 && j<=26) || (j>=29 && j<= 30) || (j>=33 && j<= 43) || (j>=46 && j<=57))) { //row 16
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }else if ((i==17)&& ((j>=8 && j<= 13) || (j>=46 && j<=51))) { //row 17
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }else if ((i==18)&& ((j>=1 && j<= 6) || (j>=8 && j<=13)|| (j>=16 && j<=18)|| (j>=20 && j<=39) || (j>=41 && j<=43) || (j>=46 && j<=51) || (j>=53 && j<=58))) { //row 18
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }else if ((i==19)&& ((j>=16 && j<= 18) || (j>=29 && j<=30)|| (j>=41 && j<=43))) { //row 19
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }else if ((i==20)&& ((j>=2 && j<= 26) || (j>=29 && j<=30)|| (j>=33 && j<=57))) { //row 20
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }else if ((i==21)&& ((j>=2 && j<= 10) || (j>=28 && j<=31)|| (j>=49 && j<=57))) { //row 21
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }
-            else if((i==22)&&((j>=2&&j<=7)||(j>=11&&j<=26)||(j>=33&&j<=54))){ //row 22
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);  
-            }else if((i == 23)&&((j>=2&&j<=9)||(j>=11&&j<=15)||(j>=17&&j<=26)||(j>=33&&j<=57))){ //row 23
-                map[i][j] = Wall;
-                printf("%c", map[i][j]);                
-            }else if((i == 24)&&(j>=28&&j<=31)){ //row 24
-                map[i][j] = Wall;
-                printf("%c", map[i][j]); 
-            }else if (i == Px && j == Py) {
-                map[i][j] = Pacman;
-                printf("%c", map[i][j]);
-            }else if ((map[i][j] != Pacman) && (map[i][j] != Wall)) {
-                map[i][j] = Coins;
-                printf("%c", map[i][j]);
-                Coin = Coin + 1;
-            }
-        }printf("\n"); //To move to next line
+// Hide the cursor
+void hide_cursor() {
+    printf("\033[?25l");
+}
+
+// Show the cursor
+void show_cursor() {
+    printf("\033[?25h");
+}
+
+// Set terminal to non-blocking input
+void enable_non_blocking_input() {
+    struct termios t;
+    tcgetattr(STDIN_FILENO, &t);
+    t.c_lflag &= ~ICANON;  // Disable canonical mode, ICANON: Canonical mode is responsible for line-buffered input, which means input is not sent to the program until the user presses Enter.
+    t.c_lflag &= ~ECHO;    // Disable echo, ECHO: This flag causes input to be echoed back to the terminal (i.e., when you type, it shows up on the screen).
+    tcsetattr(STDIN_FILENO, TCSANOW, &t);
+}
+
+// Restore terminal to blocking input
+void disable_non_blocking_input() {
+    struct termios t;
+    tcgetattr(STDIN_FILENO, &t);
+    t.c_lflag |= ICANON;  // Enable canonical mode
+    t.c_lflag |= ECHO;    // Enable echo
+    tcsetattr(STDIN_FILENO, TCSANOW, &t);
+}
+
+// Get a single character input (non-blocking)
+int getch() {
+    return getchar();
+}
+
+// Check if a key has been pressed
+int kbhit(void) {
+    struct termios oldt, newt;
+    int ch;
+    int oldf;
+
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+    ch = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+    if(ch != EOF) {
+        ungetc(ch, stdin);
+        return 1;
     }
-    printf("Score: %d\n", Score); 
+
+    return 0;
 }
 
-//Draw Map it redraws map after each movement of the character
-void DrawMap() {
-    system("clear");  // Clear screen before each redraw
-    for (int i = 0; i < Height; i++) {
-        for (int j = 0; j < Width; j++) {
-            printf("%c", map[i][j]);  // Print current map state
+
+// These 5 are the functions realted to the Game functioning
+// Time Function
+double GetElapsedTime(time_t StartTime) {
+    return difftime(time(NULL), StartTime);
+}
+
+// Check if next position is wall (and is used to print the maze wall structure)
+bool IsWall(int x, int y) {
+    if(y == 0 || x == Width -1 || x == 0 || y == Height -1) {   //Thys creates the mayn boundary of the wall
+        return true;
+    }else if((y==1 || y==2 || y==3 || y==4) && (x == 29 || x == 30)){ //row 1 to row 4 walls                
+        return true;
+    }else if((y==2 || y==3 || y==4)&& ((x>=2 && x <= 13)||(x>=16 && x<=27)||(x>=32 && x<=43)||(x>=46 && x<=57))){                 
+        return true;
+    }else if((y==6)&& ((x>=2 && x<=13) || (x>=16 && x<=18) || (x>=20 && x<=39)|| (x>=41 && x<=43)|| (x>=46 && x<=57))){ //row 6                 
+        return true;
+    }else if((y==7)&& ((x>=16 && x<=18) || (x>=29 && x<=30) || (x>=41 && x<=43))){ //row 7                 
+        return true;
+    }else if((y==8)&& ((x>=1 && x<=13) || (x>=16 && x<=26) || (x>=29 && x<=30)|| (x>=33 && x<=43)|| (x>=46 && x<=58))){ //row 8                 
+        return true;
+    }else if((y==9)&& ((x>=1 && x<=13) || (x>=16 && x<=18) || (x>=41 && x<=43)|| (x>=46 && x<=58))){ //row 9
+        return true;
+    }else if((y==10)&& ((x>=1 && x<=13) || (x>=16 && x<=18) || (x>=20 && x<=28)|| (x>=31 && x<=39)|| (x>=41 && x<=43)|| (x>=46 && x<=58))){ //row 10 
+        return true;
+    }else if((y == 11) &&((x>=20 && x<=22)||(x>=37 && x<=39))){                
+        return true;
+    }else if((y == 12) &&((x>=1 && x<=13)||(x>=16 && x<=18)||(x>=20 && x<=28)||(x>=31 && x<=33)||(x>=34 && x<=39)||(x>=41 && x<=43)||(x>=46 && x<=58))){ //row 12                
+        return true;
+    }else if((y == 13) &&((x>=1 && x<=13)||(x>=16 && x<=18)||(x>=41 && x<=43)||(x>=41 && x<=43)||(x>=46 && x<=58))){ //row 13             
+        return true;
+    }else if((y == 14)&&((x>=1 && x<=13)||(x>=16 && x<=18)||(x>=20 && x<=22)||(x>=23  && x<=39)||(x>=41 && x<=43)||(x>=46 && x<=58))){ //row 14               
+        return true;
+    }else if((y == 15)&&((x==29 || x ==30))){ //row 15                 
+        return true;   
+    }else if ((y==16)&& ((x>=2 && x<= 13) || (x>=16 && x<=26) || (x>=29 && x<= 30) || (x>=33 && x<= 43) || (x>=46 && x<=57))) { //row 16                 
+        return true;  
+    }else if ((y==17)&& ((x>=8 && x<= 13) || (x>=46 && x<=51))) { //row 17                 
+        return true;  
+    }else if ((y==18)&& ((x>=1 && x<= 6) || (x>=8 && x<=13)|| (x>=16 && x<=18)|| (x>=20 && x<=39) || (x>=41 && x<=43) || (x>=46 && x<=51) || (x>=53 && x<=58))) { //row 18                 
+        return true;  
+    }else if ((y==19)&& ((x>=16 && x<= 18) || (x>=29 && x<=30)|| (x>=41 && x<=43))) { //row 19                
+        return true;  
+    }else if ((y==20)&& ((x>=2 && x<= 26) || (x>=29 && x<=30)|| (x>=33 && x<=57))) { //row 20                 
+        return true;  
+    }else if ((y==21)&& ((x>=2 && x<= 10) || (x>=28 && x<=31)|| (x>=49 && x<=57))) { //row 21                 
+        return true;  
+    }else if((y==22)&&((x>=2&&x<=7)||(x>=11&&x<=26)||(x>=33&&x<=54))){ //row 22                
+        return true;  
+    }else if((y == 23)&&((x>=2&&x<=9)||(x>=11&&x<=15)||(x>=17&&x<=26)||(x>=33&&x<=57))){ //row 23                
+        return true;                
+    }else if((y == 24)&&(x>=28&&x<=31)){ //row 24               
+        return true; 
+    }
+    return false;
+}
+
+// Initializes or resets the game variables and map
+void InitializeGame(char Map[Height][Width], int *x, int *y, int *Lives, bool resetScore, bool resetHighScore) {
+    // Reset player position, lives, and score
+    *x = 29;
+    *y = 17;
+    *Lives = 3;
+    Score = resetHighScore? 0 : 0;
+    HighScore = resetHighScore ? 0 : HighScore;
+
+    // Reset the map with coins and clear previous player positions
+    for (int i = 0; i < Height; ++i) {
+        for (int j = 0; j < Width; ++j) {
+            if (i == 17 && j == 29) {
+                Map[i][j] = Pacman;
+            } else if (i == 5 && j == 14) {
+                Map[i][j] = GhostGang;
+            } else {
+                Map[i][j] = Coins;
+            }
+        }
+    }
+}
+
+// Render the box and character (every iteration)
+void Render(int x, int y, int Ghost1X, int Ghost1Y, int Lives, int Score, int HighScore, double ElapsedTime, char Map[Height][Width]) {
+    move_cursor(0, 0);  // Move cursor to the top left corner
+    // Draw the Maze and Characters
+    for (int i = 0; i < Height; ++i) {
+        for (int j = 0; j < Width; ++j) {
+            if (IsWall(j, i)) {
+                printf("%c", Wall);
+            } else if (i == y && j == x) {
+                printf("%c", Pacman);  // The Pacman
+            } else if (i == Ghost1Y && j == Ghost1X) {
+                printf("%c", GhostGang);  // Ghost1
+            } else if (Map[i][j] == '.') {
+                printf("%c", Coins);  // Coin
+            } else {
+                printf("%c", Empty);  // Empty space
+            }
         }
         printf("\n");
     }
-    printf("Score: %d\n", Score);  // Display current score
+    printf("Lives: %d\n", Lives); // Display Remaining Lives
+    printf("Score: %d\n", Score); // Display the Score
+    printf("High Score: %d\n", HighScore); // Display the High Score
+    printf("Time: %.0f seconds\n", ElapsedTime); // Display Elapsed Time
+    printf("Pacman(%d,%d)", x,y);
+    printf(" Demon (%d,%d)", Ghost1X, Ghost1Y);
+    fflush(stdout);  // Ensure everything is printed immediately
 }
 
-// Function to calculate and display the elapsed time
-void DisplayTime() {
-    time_t currentTime = time(NULL);  // Get the current time
-    int elapsedTime = difftime(currentTime, startTime); // Calculate elapsed time in seconds
-    printf("Time Elapsed: %d seconds\n", elapsedTime);
-}
-
-// Function to move the player based on input direction
-void move(int move_x, int move_y) {
-    int newX = Px + move_x;
-    int newY = Py + move_y;
-
-    if (newX >= 0 && newX < Height && newY >= 0 && newY < Width && map[newX][newY] != Wall) {
-        if (map[newX][newY] == Coins) {
-            Score = Score + 1;  // Increment score when collecting a coin
-            Coin = Coin - 1;    //Decrement Coins Quantity
-            if (Coin == 0){     //If all the coins are finished than the game is complete
-                result = 1;
-                return;
-            }
-        }
-        map[Px][Py] = Empty;  // Clear Pacman’s previous position
-        Px = newX;             // Update Pacman's position x coordinate
-        Py = newY;             // Update Pacman's position y coordinates
-        map[Px][Py] = Pacman;  // Place Pacman at the new position
+// Function to check if all coins have been collected
+bool AllCoinsCollected(int Score) {
+    if (Score != 618){
+        return false;   // Coins Left
     }
+    return true;  // No coins left
 }
 
-int GameLoop(){
-    startTime = time(NULL);
-    char pf;
-    while (1) {
-            DrawMap();
-            DisplayTime();
-            if (result == 1) { 
-                // Clear screen 
-                system("cls"); 
-                printf("You Win! \n Your Score: %d\n", Score); 
-                return 1; 
-            } 
-            pf = getch();
-            // Move based on user input
-            switch (pf) { 
-                case 'W':
-                    move(-1, 0); // Move up
-                    break;
-                case 'S':
-                    move(1, 0); // Move down
-                    break;
-                case 'A':
-                    move(0, -1); // Move left
-                    break;
-                case 'D':
-                    move(0, 1); // Move right
-                    break;
-                case 'Q':
-                    printf("Game Over! Your Score: %d\n", Score);
-                    return 0;
-                default:
-                    break;
-            }
-        // Delay for a moment to slow down the loop
-        usleep(100000); // Sleep for 100 milliseconds (adjust as needed)
-        }
-}
-
+// Main game function
 int main() {
-    char pf;
+    int x = 29;         // Initial x position of Pacman
+    int y = 17;         // Initial y position of Pacman
+    int dx = 0;         // No movement initially
+    int dy = 0;         // No movement initially
+    int Ghost1X = 14;   // Initial demon x position
+    int Ghost1Y = 5;    // Fixed demon y position
+    int Ghost1DX = 1;   // Demon moving right initially
+    int Lives = 3;      // Pacman Total Lives
+    int Result = 0;     // Holds the AllCoinsCollected Status
+    bool Stunned = false;
+    bool Running = true;
+    char Map[Height][Width];
+
+    time_t StartTime;
+    const double frameDelay = 0.1; // Frame delay for movement
+
+    // Initial Game Instructions and Start Page
     printf(" ____   _    ____ __  __    _    _   _\n");
     printf("|  _ \\ / \\  / ___|  \\/  |  / \\  | \\ | |\n");
     printf("| |_) / _ \\| |   | |\\/| | / _ \\ |  \\| |\n");
@@ -227,22 +231,144 @@ int main() {
     printf("To Move Down Press S\n");
     printf("To Move Right Press D\n");
     printf("To Move Left Press A\n");
-    printf("To Quit Game Press Q\n");
+    printf("To Quit Game Press Q (Caution: Whole Program will End, Nothing will be Saved, Think Before Clicking)\n");
     printf("\n\n");
-    printf("To Start Game Press Y\n"); // Display prompt to start the game
-
-    // Wait for user input using getch from conio.h (for Windows)
-    pf = getch(); // _getch() gets a single character without waiting for Enter
-
-    if (pf != 'Y' && pf != 'y') {
-        printf("Exit Game\n");
-        return 1; // Exit if the input is not 'Y' or 'y'
-    }
+    printf("To Start Game Press Y\n");
     
-    // If 'Y' or 'y' is pressed, continue the game
-    printf("Game Starting...\n"); // Indicate the game has started
-    CreateMap();
-    system("cls"); 
-    GameLoop();
+    enable_non_blocking_input();
+    // Wait for user input using getch
+    char pf = getch();
+    if (pf != 'Y' && pf != 'y') {
+        return 1; // Exit if not 'Y'/'y'
+    }
+    system("clear");  // Clearing the screen so that only map is shown
+
+    // Game initialization
+    InitializeGame(Map, &x, &y, &Lives, true, true); // Start with a clean state
+    hide_cursor();
+
+    while (Running) {
+        StartTime = time(NULL);  // Reset the timer
+
+        while (Running) {
+            if (kbhit()) { // Check if a key is pressed
+                char ch = getch(); // Get the pressed key
+                if (Stunned) {      // This Condition Runs when Pacman has hit Ghost Gang
+                    Stunned = false;
+                    x = 29; // Original x coordinate
+                    y = 17; // Original y coordinate
+                    dx = 0; // Reset movement direction
+                    dy = 0; // Reset movement direction
+                } else {
+                    switch (ch) {
+                    case 'w': case 'W': // Move up
+                        dx = 0;
+                        dy = -1;
+                        break;
+                    case 's': case 'S': // Move down
+                        dx = 0;
+                        dy = 1;
+                        break;
+                    case 'a': case 'A': // Move left
+                        dx = -1;
+                        dy = 0;
+                        break;
+                    case 'd': case 'D': // Move right
+                        dx = 1;
+                        dy = 0;
+                        break;
+                    case 'q': case 'Q': // Quit the game
+                        Running = false;
+                        break;
+                    }
+                }
+            }
+            
+            // This Condition Runs when Pacman has not hit Ghost Gang
+            if (!Stunned) {
+                int newX = x + dx;
+                int newY = y + dy;
+
+                if (IsWall(newX, newY)) {
+                    continue;
+                } else if (((newX + 1) == Ghost1X && newY == Ghost1Y) || (Ghost1X == (newX - 1) && Ghost1Y == newY) || (Ghost1X == newX && Ghost1Y == newY)) {  // Collision with GhostGang
+                    Lives--;    // Decrease Lives by 1
+                    Stunned = true; // Set stunned state to true
+                    printf("Ouch! You hit a demon! Lives left: %d\n", Lives);
+                    
+                    // Reset Pacman's position
+                    x = 29; // Original x position
+                    y = 17; // Original y position
+                    
+                    // Check if the player is out of lives
+                    if (Lives <= 0) {
+                        break; // Break if no lives are left
+                    }
+                } else {
+                    // Only update Pacman's position if not stunned
+                    x = newX;
+                    y = newY;
+
+                    // Check for Coin Collection
+                    if (Map[y][x] == Coins) {
+                        Map[y][x] = Empty; // Remove Coin from Map
+                        Score++;    //Increase Score by 1
+                        if (Score > HighScore) {
+                            HighScore = Score; // Update High Score
+                        }
+                        // Check if All Coins Are Collected
+                        if (AllCoinsCollected(Score)) {
+                            Result = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Demon movement //Confirm Deaths of PACMAN if hit
+            Ghost1X += Ghost1DX;
+            if (Ghost1X < 1 || Ghost1X >= Width - 1) { // Change direction at boundaries
+                Ghost1DX = -Ghost1DX;
+                Ghost1X += Ghost1DX; // Move demon in the new direction
+            }
+
+            
+            double ElapsedTime = GetElapsedTime(StartTime);
+            Render(x, y, Ghost1X, Ghost1Y, Lives, Score, HighScore, ElapsedTime, Map);
+
+            // End Game due to All Lives Lost OR All Coins Collected Option Menu
+            if ((Lives <= 0) || (Result == 1)) {
+                system("clear");
+                printf("  ____    _    __  __ _____     _____     _______ ____\n");
+                printf(" / ___|  / \\  |  \\/  | ____|   / _ \\ \\   / | ____|  _ \\\n");
+                printf("| |  _  / _ \\ | |\\/| |  _|    | | | \\ \\ / /|  _| | |_) |  \n");
+                printf("| |_| |/ ___ \\| |  | | |___   | |_| |\\ V / | |___|  _ <\n");
+                printf(" \\____/_/   \\_|_|  |_|_____|   \\___/  \\_/  |_____|_| \\_\\\n");
+                printf("\n\n");
+                printf("Your Score: %d\n", Score);
+                printf("High Score: %d\n", HighScore);
+                printf("\n\n\n");
+                printf("Press Q to Quit\n");
+                printf("Press N for New Game (Reset High Score)\n");
+                printf("Press P for Play Again (Retain High Score)\n");
+                enable_non_blocking_input();
+                pf = getch();
+                if (pf == 'Q' || pf == 'q') {
+                    Running = false;
+                } else if (pf == 'N' || pf == 'n') {    // New Game (High Score is set to 0)
+                    Result = 0;
+                    InitializeGame(Map, &x, &y, &Lives, true, true);
+                } else if (pf == 'P' || pf == 'p') {    // Play Again (High Score is Retained)
+                    Result = 0;
+                    InitializeGame(Map, &x, &y, &Lives, true, false);
+                }
+            }
+            
+            usleep((useconds_t)(frameDelay * 1000000));
+        }
+    }
+
+    show_cursor();
+    disable_non_blocking_input();
     return 0;
 }
