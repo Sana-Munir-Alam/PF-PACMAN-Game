@@ -1,3 +1,21 @@
+/*
+This Code is Correct: 
+It has a continious moving PACMAN and 1 Ghost.
+It has coins which can be collected and replaced with empty space.
+It has a timer that calculate how much time has passed since game started
+It has a High Score and Player Score counter
+It has WASD Keys as control keys (Made sure that both Upper Case and Small Case Letter are accepted)
+Invalid Enteries are ignored by the program
+It has Pacman 3 Lives
+It has a functioning maze
+Game Ends in two Cases when all lives are lost or when all Coins Collected
+When Gamover it shows options of NEW GAME and PLAY AGAIN, both these options work as they should (!Retain HighScore, Retain HighScore) Respectively
+*/
+
+/*What's Left to do:
+We need to add 3 more Ghost, thinking that out of 4 ghost 2 ghost shoul move continiously in one direction, while 2 ghost position to be Fixed. (Might need to alot new character faces to each Ghost Gang)
+*/
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
