@@ -1,4 +1,20 @@
-//This code has continious movement/time/character movement/Coin collectio/coin watcher
+/*
+This Code is Correct: 
+It has a continious moving PACMAN and 1 Ghost.
+It has coins which can be collected and replaced with empty space.
+It has a timer that calculate how much time has passed since game started
+It has a High Score and Player Score counter
+It has WASD Keys as control keys (Made sure that both Upper Case and Small Case Letter are accepted)
+Invalid Enteries are ignored by the program
+It has Pacman 3 Lives
+It has a functioning maze
+Game Ends in two Cases when all lives are lost or when all Coins Collected
+When Gamover it shows options of NEW GAME and PLAY AGAIN, both these options work as they should (!Retain HighScore, Retain HighScore) Respectively
+*/
+
+/*What's Left to do:
+We need to add 3 more Ghost, thinking that out of 4 ghost 2 ghost shoul move continiously in one direction, while 2 ghost position to be Fixed. (Might need to alot new character faces to each Ghost Gang)
+*/
 
 #include <stdio.h>
 #include <conio.h>  // For kbhit() and getch() on Windows
@@ -10,12 +26,13 @@
 #define Height 26
 #define Wall '#'
 #define Pacman 'C'
+#define GhostGang 'X'
 #define Coins '.'
 #define Empty ' '
 
 //Global Variable
 int Score = 0;
-
+int HighScore = 0;
 
 // Move cursor to a specific position in the terminal (Windows version)
 void move_cursor(int x, int y) {
@@ -46,7 +63,7 @@ double GetElapsedTime(time_t StartTime) {
     return difftime(time(NULL), StartTime);
 }
 
-//Check if next position is wall
+// Check if next position is wall (and is used to print the maze wall structure)
 bool IsWall(int x, int y) {
     if(y == 0 || x == Width -1 || x == 0 || y == Height -1) {   //Thys creates the mayn boundary of the wall
         return true;
@@ -96,8 +113,31 @@ bool IsWall(int x, int y) {
     return false;
 }
 
-// Render the box and character
-void Render(int x, int y, int Lives, int Score, double ElapsedTime, char map[Height][Width]) {
+// Initializes or resets the game variables and map
+void InitializeGame(char Map[Height][Width], int *x, int *y, int *Lives, bool resetScore, bool resetHighScore) {
+    // Reset player position, lives, and score
+    *x = 29;
+    *y = 17;
+    *Lives = 3;
+    Score = resetHighScore? 0 : 0;
+    HighScore = resetHighScore ? 0 : HighScore;
+
+    // Reset the map with coins and clear previous player positions
+    for (int i = 0; i < Height; ++i) {
+        for (int j = 0; j < Width; ++j) {
+            if (i == 17 && j == 29) {
+                Map[i][j] = Pacman;
+            } else if (i == 5 && j == 14) {
+                Map[i][j] = GhostGang;
+            } else {
+                Map[i][j] = Coins;
+            }
+        }
+    }
+}
+
+// Render the box and character (every iteration)
+void Render(int x, int y, int Ghost1X, int Ghost1Y, int Lives, int Score, int HighScore, double ElapsedTime, char Map[Height][Width]) {
     move_cursor(0, 0);  // Move cursor to the top left corner
     // Draw the Maze and Characters
     for (int i = 0; i < Height; ++i) {
@@ -105,8 +145,10 @@ void Render(int x, int y, int Lives, int Score, double ElapsedTime, char map[Hei
             if (IsWall(j, i)) {
                 printf("%c", Wall);
             } else if (i == y && j == x) {
-                printf("%c", Pacman);  // The character
-            } else if (map[i][j] == '.') {
+                printf("%c", Pacman);  // The Pacman
+            } else if (i == Ghost1Y && j == Ghost1X) {
+                printf("%c", GhostGang);  // Ghost1
+            } else if (Map[i][j] == '.') {
                 printf("%c", Coins);  // Coin
             } else {
                 printf("%c", Empty);  // Empty space
@@ -116,24 +158,40 @@ void Render(int x, int y, int Lives, int Score, double ElapsedTime, char map[Hei
     }
     printf("Lives: %d\n", Lives); // Display Remaining Lives
     printf("Score: %d\n", Score); // Display the Score
+    printf("High Score: %d\n", HighScore); // Display the High Score
     printf("Time: %.0f seconds\n", ElapsedTime); // Display Elapsed Time
+    printf("Pacman(%d,%d)", x,y);
+    printf(" Demon (%d,%d)", Ghost1X, Ghost1Y);
     fflush(stdout);  // Ensure everything is printed immediately
 }
 
-// Main game logic
-int main() {
-    int x = 29;  // Initial x position of Pacman
-    int y = 17; // Initial y position of Pacman
-    int dx = 0;  // No movement initially
-    int dy = 0;  // No movement initially
-    int Lives = 3;
+// Function to check if all coins have been collected
+bool AllCoinsCollected(int Score) {
+    if (Score != 618){
+        return false;   // Coins Left
+    }
+    return true;  // No coins left
+}
 
+// Main game function
+int main() {
+    int x = 29;     // Initial x position of Pacman
+    int y = 17;     // Initial y position of Pacman
+    int dx = 0;     // No movement initially
+    int dy = 0;     // No movement initially
+    int Ghost1X = 14; // Initial demon x position
+    int Ghost1Y = 5;  // Fixed demon y position
+    int Ghost1DX = 1; // Demon moving right initially
+    int Lives = 3;   // Pacman Total Lives
+    int Result = 0;  // Holds the AllCoinsCollected Status
     bool Stunned = false;
     bool Running = true;
+    char Map[Height][Width];
 
-    time_t StartTime = time(NULL);
-    const double frameDelay = 0.15;  // Target frame time (350 ms per frame)
-    
+    time_t StartTime;
+    const double frameDelay = 0.1; // Frame delay for movement
+
+    // Initial Game Instructions and Start Page
     printf(" ____   _    ____ __  __    _    _   _\n");
     printf("|  _ \\ / \\  / ___|  \\/  |  / \\  | \\ | |\n");
     printf("| |_) / _ \\| |   | |\\/| | / _ \\ |  \\| |\n");
@@ -145,42 +203,35 @@ int main() {
     printf("To Move Down Press S\n");
     printf("To Move Right Press D\n");
     printf("To Move Left Press A\n");
-    printf("To Quit Game Press Q\n");
+    printf("To Quit Game Press Q (Caution: Whole Program will End, Nothing will be Saved, Think Before Clicking)\n");
     printf("\n\n");
-    printf("To Start Game Press Y\n"); // Display prompt to start the game
+    printf("To Start Game Press Y\n");
 
-    // Wait for user input using getch from conio.h (for Windows)
-    char pf = _getch(); // _getch() gets a single character without waiting for Enter
+    // Wait for user input using getch
+    char pf = _getch();
     if (pf != 'Y' && pf != 'y') {
-        printf("Exit Game\n");
-        return 1; // Exit if the input is not 'Y' or 'y'
+        return 1; // Exit if not 'Y'/'y'
     }
+    system("cls");  // Clearing the screen so that only map is shown
 
-    // Initializing Map with Coins and Pacman
-    char map[Height][Width];
-    for (int i = 0; i < Height; ++i) {
-        for (int j = 0; j < Width; ++j) {
-                if (i == 17 && j == 29){
-                    map[i][j] = Pacman;
-                }else{
-                    map[i][j] = Coins;
-                }   
-        }
-    }
-
-    // Hide cursor for smoother gameplay
+    // Game initialization
+    InitializeGame(Map, &x, &y, &Lives, true, true); // Start with a clean state
     hide_cursor();
 
     while (Running) {
-        // Handle input (non-blocking)
-        if (_kbhit()) {  // Check if a key is pressed
-            char ch = _getch();  // Get the pressed key
-            if (Stunned) {  //True if Pacman collided with GhostGang this will reset Pacman to original position
-                Stunned = false;
-                x = 29; //Original x coordinate
-                y = 17; //Original y coordinate
-            } else {
-                switch (ch) {
+        StartTime = time(NULL);  // Reset the timer
+
+        while (Running) {
+            if (_kbhit()) { // Check if a key is pressed
+                char ch = _getch(); // Get the pressed key
+                if (Stunned) {      // This Condition Runs when Pacman has hit Ghost Gang
+                    Stunned = false;
+                    x = 29; // Original x coordinate
+                    y = 17; // Original y coordinate
+                    dx = 0; // Reset movement direction
+                    dy = 0; // Reset movement direction
+                } else {
+                    switch (ch) {
                     case 'w': case 'W': // Move up
                         dx = 0;
                         dy = -1;
@@ -200,51 +251,93 @@ int main() {
                     case 'q': case 'Q': // Quit the game
                         Running = false;
                         break;
+                    }
                 }
             }
-        }
+            
+            // This Condition Runs when Pacman has not hit Ghost Gang
+            if (!Stunned) {
+                int newX = x + dx;
+                int newY = y + dy;
 
-        // This checks if Pacman has not come in contact with Ghost Gang
-        if (!Stunned) {
-            int newX = x + dx;
-            int newY = y + dy;
+                if (IsWall(newX, newY)) {
+                    continue;
+                } else if (((newX + 1) == Ghost1X && newY == Ghost1Y) || (Ghost1X == (newX - 1) && Ghost1Y == newY) || (Ghost1X == newX && Ghost1Y == newY)) {  // Collision with GhostGang
+                    Lives--;    // Decrease Lives by 1
+                    Stunned = true; // Set stunned state to true
+                    printf("Ouch! You hit a demon! Lives left: %d\n", Lives);
+                    
+                    // Reset Pacman's position
+                    x = 29; // Original x position
+                    y = 17; // Original y position
+                    
+                    // Check if the player is out of lives
+                    if (Lives <= 0) {
+                        break; // Break if no lives are left
+                    }
+                } else {
+                    // Only update Pacman's position if not stunned
+                    x = newX;
+                    y = newY;
 
-            if (IsWall(newX, newY)) {
-                continue;
-            } else if (newX == 17 && newY == 10) {
-                Lives = Lives - 1;
-                Stunned = true;
-                printf("Ouch! You hit a demon! Lives left: %d\n", Lives);
-                x = Width / 2;
-                y = Height / 2;
-            } else {
-                x = newX;
-                y = newY;
-
-                // Check for coin collection
-                if (map[y][x] == Coins) {
-                    map[y][x] = Empty;  // Replace coin with empty space
-                    Score = Score + 1;  // Increment score
+                    // Check for Coin Collection
+                    if (Map[y][x] == Coins) {
+                        Map[y][x] = Empty; // Remove Coin from Map
+                        Score++;    //Increase Score by 1
+                        if (Score > HighScore) {
+                            HighScore = Score; // Update High Score
+                        }
+                        // Check if All Coins Are Collected
+                        if (AllCoinsCollected(Score)) {
+                            Result = 1;
+                            break;
+                        }
+                    }
                 }
             }
+
+            // Demon movement //Confirm Deaths of PACMAN if hit
+            Ghost1X += Ghost1DX;
+            if (Ghost1X < 1 || Ghost1X >= Width - 1) { // Change direction at boundaries
+                Ghost1DX = -Ghost1DX;
+                Ghost1X += Ghost1DX; // Move demon in the new direction
+            }
+
+            
+            double ElapsedTime = GetElapsedTime(StartTime);
+            Render(x, y, Ghost1X, Ghost1Y, Lives, Score, HighScore, ElapsedTime, Map);
+
+            // End Game due to All Lives Lost OR All Coins Collected Option Menu
+            if ((Lives <= 0) || (Result == 1)) {
+                system("cls");
+                printf("  ____    _    __  __ _____     _____     _______ ____\n");
+                printf(" / ___|  / \\  |  \\/  | ____|   / _ \\ \\   / | ____|  _ \\\n");
+                printf("| |  _  / _ \\ | |\\/| |  _|    | | | \\ \\ / /|  _| | |_) |  \n");
+                printf("| |_| |/ ___ \\| |  | | |___   | |_| |\\ V / | |___|  _ <\n");
+                printf(" \\____/_/   \\_|_|  |_|_____|   \\___/  \\_/  |_____|_| \\_\\\n");
+                printf("\n\n");
+                printf("Your Score: %d\n", Score);
+                printf("High Score: %d\n", HighScore);
+                printf("\n\n\n");
+                printf("Press Q to Quit\n");
+                printf("Press N for New Game (Reset High Score)\n");
+                printf("Press P for Play Again (Retain High Score)\n");
+                pf = _getch();
+                if (pf == 'Q' || pf == 'q') {
+                    Running = false;
+                } else if (pf == 'N' || pf == 'n') {    // New Game (High Score is set to 0)
+                    Result = 0;
+                    InitializeGame(Map, &x, &y, &Lives, true, true);
+                } else if (pf == 'P' || pf == 'p') {    // Play Again (High Score is Retained)
+                    Result = 0;
+                    InitializeGame(Map, &x, &y, &Lives, true, false);
+                }
+            }
+            
+            Sleep((DWORD)(frameDelay * 1000)); // Frame rate control
         }
-
-        double ElapsedTime = GetElapsedTime(StartTime);
-        
-        // Render the game
-        Render(x, y, Lives, Score, ElapsedTime, map);
-
-        //Check if Pacman has any remaining life if no 'Game Over'
-        if (Lives <= 0) {
-            printf("Game Over! You have no lives left.\n");
-            Running = false;
-        }
-
-        // Sleep to control frame rate (350 ms per frame)
-        Sleep((DWORD)(frameDelay * 1000)); // Sleep takes milliseconds
     }
 
-    // Show cursor before exiting
     show_cursor();
     return 0;
 }
