@@ -1,3 +1,7 @@
+// Extra Function (Not included in Main Game)
+// This function was removed and replaced with Section 2 and Section 1: However those 2 sections depict the final image of what this function does.
+// This is how our maze looks like
+
 //Function that creates the main map (this is making the alteration in the global map function)
 void CreateMap(){
     system("cls"); //Clears Screen
