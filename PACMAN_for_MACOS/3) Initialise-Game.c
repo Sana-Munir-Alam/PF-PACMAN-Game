@@ -22,7 +22,9 @@ void InitializeGame(char Map[Height][Width], int *x, int *y, int *Lives, bool re
                 Map[i][j] = GhostGang3;
             } else if(i == 1 && j == 14){
                 Map[i][j] = GhostGang4;
-            } else {
+            } else if ((i == 11 && j == 1) || (i == 11 && j == 58)){
+                Map[i][j] = PowerCoin;
+            }else {
                 Map[i][j] = Coins;
             }
         }
