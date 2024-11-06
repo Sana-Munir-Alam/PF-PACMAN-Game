@@ -12,14 +12,16 @@ void Render(int x, int y, int Ghost1X, int Ghost1Y, int Ghost2X, int Ghost2Y, in
             } else if (i == y && j == x) {
                 printf("%c", Pacman);  // The Pacman
             } else if (i == Ghost1Y && j == Ghost1X) {
-                printf("%c", GhostGang);    // Ghost1
+                printf(powerUpActive ? "x" : "X");    // Ghost1
             } else if (i == Ghost2Y && j == Ghost2X){
-                printf("%c", GhostGang2);   // Ghost2
+                printf(powerUpActive ? "y" : "Y");   // Ghost2
             } else if (i == Ghost3Y && j == Ghost3X){
-                printf("%c", GhostGang3);   // Ghost3
+                printf(powerUpActive ? "z" : "Z");   // Ghost3
             } else if (i == Ghost4Y && j == Ghost4X){
-                printf("%c", GhostGang4);   // Ghost4
-            }else if (Map[i][j] == '.') {
+                printf(powerUpActive ? "w" : "W");   // Ghost4
+            }else if (Map[i][j] == PowerCoin) {
+                printf("%c", PowerCoin);  // Power Coin
+            } else if (Map[i][j] == '.') {
                 printf("%c", Coins);  // Coin
             } else {
                 printf("%c", Empty);  // Empty space
