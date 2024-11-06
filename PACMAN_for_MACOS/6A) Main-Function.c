@@ -57,6 +57,13 @@ int main() {
         StartTime = time(NULL);  // Reset the timer
 
         while (Running) {
+            // Check if power-up time is over
+            if (powerUpActive) {
+                double elapsed = difftime(time(NULL), powerUpStart);
+                if (elapsed >= 5) {
+                    powerUpActive = false; // Deactivate power-up after 5 seconds
+                }
+            }
             if (kbhit()) { // Check if a key is pressed
                 char ch = getch(); // Get the pressed key
                 if (Stunned) {      // This Condition Runs when Pacman has hit Ghost Gang
@@ -97,57 +104,77 @@ int main() {
 
                 if (IsWall(newX, newY)) {
                     continue;
+                } else if (Map[y][x] == PowerCoin) {
+                        powerUpActive = true;
+                        powerUpStart = time(NULL);
+                        Map[y][x] = ' ';
                 } else if (((newX + 1) == Ghost1X && newY == Ghost1Y) || (Ghost1X == (newX - 1) && Ghost1Y == newY) || (Ghost1X == newX && Ghost1Y == newY)) {  // Collision with GhostGang 1
-                    Lives--;    // Decrease Lives by 1
-                    Stunned = true; // Set stunned state to true
-                    printf("Ouch! You hit a ghost! Lives left: %d\n", Lives);
-                    
-                    // Reset Pacman's position
-                    x = 29; // Original x position
-                    y = 17; // Original y position
-                    
-                    // Check if the player is out of lives
-                    if (Lives <= 0) {
-                        break; // Break if no lives are left
+                    if (powerUpActive) {
+                        Score += 10;
+                    }else{
+                        Lives--;    // Decrease Lives by 1
+                        Stunned = true; // Set stunned state to true
+                        printf("Ouch! You hit a ghost! Lives left: %d\n", Lives);
+                        
+                        // Reset Pacman's position
+                        x = 29; // Original x position
+                        y = 17; // Original y position
+                        
+                        // Check if the player is out of lives
+                        if (Lives <= 0) {
+                            break; // Break if no lives are left
+                        }
                     }
                 } else if(((newX + 1) == Ghost2X && newY == Ghost2Y) || (Ghost2X == (newX - 1) && Ghost2Y == newY) || (Ghost2X == newX && Ghost2Y == newY)) {   // Collision with GhostGang 2
-                    Lives--;    // Decrease Lives by 1
-                    Stunned = true; // Set stunned state to true
-                    printf("Ouch! You hit a ghost! Lives left: %d\n", Lives);
-                    
-                    // Reset Pacman's position
-                    x = 29; // Original x position
-                    y = 17; // Original y position
-                    
-                    // Check if the player is out of lives
-                    if (Lives <= 0) {
-                        break; // Break if no lives are left
+                    if (powerUpActive) {
+                        Score += 10;
+                    }else{
+                        Lives--;    // Decrease Lives by 1
+                        Stunned = true; // Set stunned state to true
+                        printf("Ouch! You hit a ghost! Lives left: %d\n", Lives);
+                        
+                        // Reset Pacman's position
+                        x = 29; // Original x position
+                        y = 17; // Original y position
+                        
+                        // Check if the player is out of lives
+                        if (Lives <= 0) {
+                            break; // Break if no lives are left
+                        }
                     }
                 } else if((newX == Ghost3X && newY == Ghost3Y) || (Ghost3X == newX && Ghost3Y == newY - 1)|| (Ghost3X == newX && Ghost3Y == newY + 1)) {   // Collision with GhostGang 3
-                    Lives--;    // Decrease Lives by 1
-                    Stunned = true; // Set stunned state to true
-                    printf("Ouch! You hit a ghost! Lives left: %d\n", Lives);
-                    
-                    // Reset Pacman's position
-                    x = 29; // Original x position
-                    y = 17; // Original y position
-                    
-                    // Check if the player is out of lives
-                    if (Lives <= 0) {
-                        break; // Break if no lives are left
+                    if (powerUpActive) {
+                        Score += 10;
+                    }else{
+                        Lives--;    // Decrease Lives by 1
+                        Stunned = true; // Set stunned state to true
+                        printf("Ouch! You hit a ghost! Lives left: %d\n", Lives);
+                        
+                        // Reset Pacman's position
+                        x = 29; // Original x position
+                        y = 17; // Original y position
+                        
+                        // Check if the player is out of lives
+                        if (Lives <= 0) {
+                            break; // Break if no lives are left
+                        }
                     }
                 } else if(newX == Ghost4X && newY == Ghost4Y || (Ghost4X == newX && Ghost4Y == newY - 1)|| (Ghost4X == newX && Ghost4Y == newY - 1)){   // Collision with GhostGang 4
-                    Lives--;    // Decrease Lives by 1
-                    Stunned = true; // Set stunned state to true
-                    printf("Ouch! You hit a ghost! Lives left: %d\n", Lives);
-                    
-                    // Reset Pacman's position
-                    x = 29; // Original x position
-                    y = 17; // Original y position
-                    
-                    // Check if the player is out of lives
-                    if (Lives <= 0) {
-                        break; // Break if no lives are left
+                    if (powerUpActive) {
+                        Score += 10;
+                    }else{
+                        Lives--;    // Decrease Lives by 1
+                        Stunned = true; // Set stunned state to true
+                        printf("Ouch! You hit a ghost! Lives left: %d\n", Lives);
+                        
+                        // Reset Pacman's position
+                        x = 29; // Original x position
+                        y = 17; // Original y position
+                        
+                        // Check if the player is out of lives
+                        if (Lives <= 0) {
+                            break; // Break if no lives are left
+                        }
                     }
                 } else {
                     // Only update Pacman's position if not stunned
@@ -158,12 +185,12 @@ int main() {
                     if (Map[y][x] == Coins) {
                         Map[y][x] = Empty; // Remove Coin from Map
                         Score++;    // Increase Score by 1
-                        Coin++;     // Increase Coin by 1
+                        Food++;
                         if (Score > HighScore) {
                             HighScore = Score; // Update High Score
                         }
                         // Check if All Coins Are Collected
-                        if (AllCoinsCollected(Coin)) {
+                        if (AllCoinsCollected(Food)) {
                             Result = 1;
                             break;
                         }
