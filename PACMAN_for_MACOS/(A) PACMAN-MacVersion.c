@@ -28,7 +28,7 @@ Sound effects.
 
 #define Width 60
 #define Height 26
-#define Wall '#'
+#define Wall '|'
 #define Pacman 'C'
 #define GhostGang 'X'
 #define GhostGang2 'Y'
