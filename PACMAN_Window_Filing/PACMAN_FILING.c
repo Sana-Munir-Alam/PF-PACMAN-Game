@@ -1,3 +1,33 @@
+/*
+This Code is Correct: 
+It has a continious moving PACMAN and 4 Ghost. (2 ghost moves Horizontally and 2 ghost moves Vertically)
+It has coins which can be collected and replaced with empty space.
+It has a timer that calculates how much time has passed since game started
+It has a High Score and Player Score counter
+It has W,A,S,D Keys as control keys (Made sure that both Upper Case and Small Case Letter are accepted)
+It has Power Coins (@) that allows PACMAN to eat ghost temporaly for 5 seconds.
+It has 3 Lives of PACMAN
+It has a functioning maze
+Invalid Enteries are ignored by the program
+Game Ends in two Cases when all lives are lost or when all Coins Collected
+When Gamover it shows options of NEW GAME and PLAY AGAIN, both these options work as they should (!Retain HighScore, Retain HighScore) Respectively
+*/
+
+/*
+Additional Thing:
+This code includes filing.
+It asks user to create account and store it in a file.
+it asks user to login to play
+The game play when user has logged in.
+The user than quits the game to save their score if it's higher than their previous score.
+The user can view evry player high score by choosing display option
+*/
+
+/*
+What's Left to do:
+Sound effects.
+*/
+
 #include <stdio.h>
 #include <conio.h>      // For kbhit() and getch()
 #include <windows.h>    // For Sleep()
@@ -637,4 +667,5 @@ int main() {
                 break;
         }
     }
+    return 0;
 }
