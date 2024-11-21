@@ -638,9 +638,11 @@ int main() {
                 break;
             case 2:
                 printf("Enter your Username: ");
-                scanf("%s", Username);
+                fgets(Username, 30, stdin);
+                Username[strcspn(Username, "\n")]='\0';
                 printf("Enter your Password: ");
-                scanf("%s", Password);
+                fgets(Password, 30, stdin);
+                Password[strcspn(Password, "\n")]='\0';
                 
                 int playerIndex = Login(Players, PlayerCount, Username, Password);
                 if (playerIndex != -1) {
