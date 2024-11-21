@@ -637,6 +637,7 @@ int main() {
                 CreateAccount(Players, &PlayerCount);
                 break;
             case 2:
+                getchar();
                 printf("Enter your Username: ");
                 fgets(Username, 30, stdin);
                 Username[strcspn(Username, "\n")]='\0';
