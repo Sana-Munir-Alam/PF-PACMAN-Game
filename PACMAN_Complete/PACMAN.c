@@ -700,7 +700,7 @@ int main() {
                 printf("Exiting...\n");
                 return 0;
             default:
-                printf("Invalid choice. Please enter a number between 1 and 5.\n");
+                printf("Invalid choice. Please enter a number between 1 and 4.\n");
                 break;
         }
     }
