@@ -11,7 +11,7 @@ It has a functioning maze
 Invalid Enteries are ignored by the program
 Game Ends in two Cases when all lives are lost or when all Coins Collected
 When Gamover it shows options of NEW GAME and PLAY AGAIN, both these options work as they should (!Retain HighScore, Retain HighScore) Respectively
-Te=he game gives the user visual and audio feedback
+The game gives the user visual and audio feedback
 */
 
 /*
