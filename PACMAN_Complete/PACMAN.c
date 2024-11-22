@@ -101,7 +101,7 @@ double GetElapsedTime(time_t StartTime) {
 
 // Check if next position is wall (This is used to print the maze wall structure)
 bool IsWall(int x, int y) {
-    if(y == 0 || x == Width -1 || x == 0 || y == Height -1) {   //Thys creates the main boundary of the wall
+    if(y == 0 || x == Width -1 || x == 0 || y == Height -1) {   //This creates the main boundary of the wall
         return true;
     }else if((y==1 || y==2 || y==3 || y==4) && (x == 29 || x == 30)){ // Row 1 to Row 4 walls                
         return true;
