@@ -267,7 +267,7 @@ int Pacman_Game() {
     char Map[Height][Width];
 
     time_t StartTime;
-    const double frameDelay = 0.1; // Frame delay for movement
+    const double frameDelay = 0.03; // Frame delay for movement (the smaller the delay the faster the movement)
 
     // Initial Game Instructions and Start Page
     printf("\033[1;33m\n");
@@ -298,7 +298,7 @@ int Pacman_Game() {
     // Wait for user input using getch
     char pf = _getch();
     if (pf != 'Y' && pf != 'y') {
-        return 1; // Exit if not 'Y'/'y'
+        return 0; // Exit if not 'Y'/'y'
     }
     system("cls");  // Clearing the screen so that only map is shown
 
@@ -368,6 +368,7 @@ int Pacman_Game() {
                     if (powerUpActive) {                        
                         Beep(700, 900);
                         Score += 10;
+                        printf("\033[0;36mCongratulations!! You ate a ghost!!      \033[0m");
                     }else{
 	                    Beep(690, 200);
                     	Sleep(150);
@@ -391,6 +392,7 @@ int Pacman_Game() {
                     if (powerUpActive) {
                         Beep(700, 900);
                         Score += 10;
+                        printf("\033[0;36mCongratulations!! You ate a ghost!!      \033[0m");
                     }else{
 	                    Beep(690, 200);
                     	Sleep(10);
@@ -414,6 +416,7 @@ int Pacman_Game() {
                     if (powerUpActive) {
                         Beep(700, 900);
                         Score += 10;
+                        printf("\033[0;36mCongratulations!! You ate a ghost!!      \033[0m");
                     }else{
 	                    Beep(690, 200);
                     	Sleep(10);
@@ -437,6 +440,7 @@ int Pacman_Game() {
                     if (powerUpActive) {
                         Beep(700, 900);
                         Score += 10;
+                        printf("\033[0;36mCongratulations!! You ate a ghost!!      \033[0m");
                     }else{
 	                    Beep(690, 200);
                     	Sleep(10);
