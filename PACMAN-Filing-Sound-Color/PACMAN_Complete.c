@@ -267,7 +267,7 @@ int Pacman_Game() {
     char Map[Height][Width];
 
     time_t StartTime;
-    const double frameDelay = 0.03; // Frame delay for movement (the smaller the delay the faster the movement)
+    const double frameDelay = 0.002; // Frame delay for movement (the smaller the delay the faster the movement)
 
     // Initial Game Instructions and Start Page
     printf("\033[1;33m\n");
