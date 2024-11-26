@@ -90,7 +90,6 @@ This project is built using the following technologies:
 ### **Libraries and Tools**
 - **Standard Libraries**:
   - `<stdio.h>`: Used for standard input and output operations.
-  - `<stdlib.h>`: Provides utility functions for memory management and conversions.
   - `<conio.h>`: Enables real-time keyboard input handling.
   - `<windows.h>`: Used for terminal control and manipulating the console window.
   - `<stdbool.h>`: Allows usage of Boolean data types and operations.
