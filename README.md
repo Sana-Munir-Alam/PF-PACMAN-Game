@@ -95,6 +95,7 @@ This project is built using the following technologies:
   - `<windows.h>`: Used for terminal control and manipulating the console window.
   - `<stdbool.h>`: Allows usage of Boolean data types and operations.
   - `<time.h>`: Provides time functions for tracking elapsed game time.
+  - `<string.h>`: Provides string functions for string related function.
 
 ### **File Management**
 - **File Handling**: Used to store player accounts, scores, and the leaderboard to ensure persistence across sessions.
