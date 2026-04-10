@@ -1,8 +1,0 @@
-Username: sana
-Password: 123
-Highscore: 36
-
-Username: shaista
-Password: 123
-Highscore: 125
-
