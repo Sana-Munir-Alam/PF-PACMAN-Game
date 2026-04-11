@@ -2,7 +2,7 @@
 
 ## Overview
 
-A terminal-based implementation of the classic PAC-MAN arcade game, built entirely in C as a Programming Fundamentals (PF) course project. The game runs in the console and reproduces core PAC-MAN mechanics including ghost movement, coin and power-coin collection, lives, scoring, and a persistent file-based leaderboard. An enhanced version adds color output, audio feedback, and player account management. A separate macOS-compatible build is also included with platform-specific terminal handling.
+A terminal-based implementation of the classic PAC-MAN arcade game, built entirely in C as a **Programming Fundamentals (PF) course project**. The game runs in the console and reproduces core PAC-MAN mechanics including ghost movement, coin and power-coin collection, lives, scoring, and a persistent file-based leaderboard. An enhanced version adds color output, audio feedback, and player account management. A separate macOS-compatible build is also included with platform-specific terminal handling.
 
 ## Features
 
