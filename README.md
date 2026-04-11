@@ -115,7 +115,7 @@ gcc -o  pacman PACMAN_Complete.c
 
 ```
 PF-PACMAN-Game/
-├── PACMAN-Filing-Sound-Color/
+├── PACMAN_for_WINDOWS/
 │   ├── PACMAN_Complete.c       # Full enhanced version (Windows) — color, sound, file I/O
 │   └── PACMAN Report.pdf       # Project report
 └── PACMAN_for_MACOS/
